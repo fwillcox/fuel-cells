@@ -1,0 +1,285 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>me140_project4</title><meta name="generator" content="MATLAB 8.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-04-24"><meta name="DC.source" content="me140_project4.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">% ME140 PROJECT 4: FUEL CELLS</span>
+<span class="comment">% ----------------------------</span>
+<span class="comment">% FILENAME: me140_project4.m</span>
+<span class="comment">% Jon Renslo, Emily Bohl, Frankie Willcox, Natasha Berk, Kendall Fagan</span>
+<span class="comment">% 4/15/16 - Created Jon Renslo</span>
+
+close <span class="string">all</span>; clear; clc;
+
+<span class="comment">% Constants</span>
+G_TO_KG = 10^-3;
+KPA_TO_PA = 10^3;
+KJ_TO_J = 10^3;
+C_TO_K = 273.15;
+
+N_TO_O = 79/21;         <span class="comment">% Engineering Air Molar Mass Ratio of Nitrogen to Oxygen</span>
+AIR_TO_H = 4.76;        <span class="comment">% Ratio between H combusted and air</span>
+
+<span class="comment">% Molar Masses</span>
+MM_c = 12;
+MM_h = 1;
+MM_o = 16;
+MM_n = 14;
+MM_h2o = 2*MM_h + MM_o;
+
+<span class="comment">% -------------------------------------------------</span>
+<span class="comment">% Part 1: Efficiency of PEM Fuel Cells Found 3 Ways</span>
+<span class="comment">% -------------------------------------------------</span>
+<span class="comment">% ASSUME: isothermal, isobaric i.e. reversible</span>
+<span class="comment">% USE: First- Law Effiency, eta = (-m_reactants*dg_rxn)/(mfuel*HV) where HV = LHV or HHV</span>
+<span class="comment">% SOURCE: LEC 8, SLIDE 13</span>
+
+npts = 100;
+T = linspace(25+C_TO_K,1000+C_TO_K,npts);
+lambda = 2;                         <span class="comment">% Equivalence Ratio(ASSUME: 100% excess air)</span>
+HHV_h2 = 141800;                    <span class="comment">% kj/kg,  Higher Heating Value</span>
+LHV_h2 = 120000;                    <span class="comment">% kj/kg,  Lower Heating Value</span>
+Patm = 101.3*KPA_TO_PA;             <span class="comment">% Pa,     Preact = Pprod = Patm</span>
+
+mol_h2 = 1;                         <span class="comment">% (ASSUME: 1 mol H2--&gt;4.76/2 mol air = 139 g)</span>
+mass_h2 = mol_h2 * 2*MM_h * G_TO_KG;
+mol_air = AIR_TO_H * lambda / 2;
+mol_o2_rxn = mol_air / AIR_TO_H;
+mol_n2 = mol_air * N_TO_O / AIR_TO_H;
+
+mol_h2o = mol_h2;
+mol_o2_prod = 0.5*(lambda - mol_h2) * mol_o2_rxn;
+
+<span class="comment">% Check Mass Balance</span>
+<span class="comment">% MM_air = 28.85;</span>
+<span class="comment">% mass_react = mass_h2 + mol_air*MM_air*G_TO_KG</span>
+<span class="comment">% mass_prod = (mol_o2_prod*2*MM_o*G_TO_KG) + (mol_n2*2*MM_n*G_TO_KG + ...</span>
+<span class="comment">% ...mol_h2o*MM_h2o*G_TO_KG);</span>
+
+<span class="comment">% Calculate Change in Gibbs Free Energy</span>
+gprod_LHV = gEng(T,Patm,<span class="string">'h2ovap'</span>,mol_h2o) + gEng(T,Patm,<span class="string">'o2'</span>,mol_o2_prod) + gEng(T,Patm,<span class="string">'n2'</span>,mol_n2); <span class="comment">% J, Gibbs Free Energy</span>
+gprod_HHV = gEng(T,Patm,<span class="string">'h2o'</span>,mol_h2o) + gEng(T,Patm,<span class="string">'o2'</span>,mol_o2_prod) + gEng(T,Patm,<span class="string">'n2'</span>,mol_n2);
+greact = gEng(T,Patm,<span class="string">'h2'</span>,mol_h2) + gEng(T,Patm,<span class="string">'o2'</span>,mol_o2_rxn) + gEng(T,Patm,<span class="string">'n2'</span>,mol_n2);
+
+<span class="comment">% Account for Gas/Liquid Mixture</span>
+<span class="comment">% SOURCE: LEC 8 Slide 24, LEC 9, Slide 29</span>
+<span class="comment">% APPROACH: (1) Assume beta=1, let Pv=Psat (2) Solve for Ptotal</span>
+<span class="comment">% -------- If Pv &lt; Psat, all vapor. If Pv &gt; Psat, must be some liquid.</span>
+beta = 1;                                   <span class="comment">% ASSUME: all vapor</span>
+Ptotal = Patm;
+Psat = PsatW(T);
+Pv = Ptotal*(beta./(beta + 0.5.*(gamma(T)-1) +0.5.*gamma(T).*N_TO_O ));
+
+<span class="keyword">for</span> i = 1:length(T)
+    eta_carnot(i) = carnotEff(T(i),T(1));      <span class="comment">% ASSUME: Tcold = 25 degrees C</span>
+
+    <span class="keyword">if</span> Pv(i) &lt; Psat(i)
+        <span class="comment">% All H2O is vapor (beta = 1)</span>
+        beta = 1;
+        Pv(i) = Ptotal*( beta / ( beta + 0.5*((mol_h2o-beta)-1) +0.5*(mol_h2o-beta)*N_TO_O ) );
+    <span class="keyword">else</span>
+        <span class="comment">% Some H2O is vapor, some liquid (beta not = 1)</span>
+        <span class="comment">% LET: Pv = Psat, solve for beta</span>
+        Pv(i) = PsatW(i);
+        gamma(i) = mol_h2o - beta(i);
+        syms <span class="string">b</span>
+        solve(Pv(i)/Ptotal == b/(b + 0.5*((mol_h2o-b)-1) +0.5*(mol_h2o-b)*N_TO_O ) ,b);
+    <span class="keyword">end</span>
+    gprod_LHV_mix = beta(i) * gEng(T,Patm,<span class="string">'h2ovap'</span>,mol_h2o) + gamma(i) * gEng(T,Patm,<span class="string">'h2o'</span>,mol_h2o) + gEng(T,Patm,<span class="string">'o2'</span>,mol_o2_prod) + gEng(T,Patm,<span class="string">'n2'</span>,mol_n2);
+    delG_mix(i) = gprod_LHV_mix(i) - greact(i);    <span class="comment">% TODO: DOUBLE CHECK THIS use LHV because no way to recover evaporated air?</span>
+    eta_mix(i) = -delG_mix(i)/ (LHV_h2 * mass_h2 * KJ_TO_J);
+<span class="keyword">end</span>
+
+delG_HHV = gprod_HHV - greact;
+delG_LHV = gprod_LHV - greact;
+eta_HHV = -delG_HHV / (HHV_h2 * mass_h2 * KJ_TO_J);
+eta_LHV = -delG_LHV / (LHV_h2 * mass_h2 * KJ_TO_J);
+
+figure(1);
+plot(T,eta_HHV,<span class="string">'b--'</span>, T,eta_LHV,<span class="string">'m'</span>, T,eta_mix,<span class="string">'g'</span>, T,eta_carnot,<span class="string">'c'</span>);
+legend(<span class="string">'\eta_{HHV}'</span>,<span class="string">'\eta_{LHV}'</span>,<span class="string">'\eta_{Mixed Liquid and Gas}'</span>,<span class="string">'\eta_{Carnot}'</span>);
+xlabel(<span class="string">'Temperature [K]'</span>);
+ylabel(<span class="string">'Maximum 1st Law Efficiency'</span>);
+plotfixer();
+
+
+<span class="comment">% Part 2</span>
+
+<span class="comment">% Plot eta_LHV vs lambda (1:10), (p = 1atm)</span>
+<span class="comment">%      eta_LHV vs pressure (1:40atm), (lambda = 2)</span>
+<span class="comment">%       each at 80 220 650 800C</span>
+</pre><pre class="codeoutput">Index exceeds matrix dimensions.
+
+Error in me140_project4 (line 83)
+    gprod_LHV_mix = beta(i) * gEng(T,Patm,'h2ovap',mol_h2o) + gamma(i) * gEng(T,Patm,'h2o',mol_h2o) + gEng(T,Patm,'o2',mol_o2_prod) + gEng(T,Patm,'n2',mol_n2);
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2013a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% ME140 PROJECT 4: FUEL CELLS
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+% FILENAME: me140_project4.m
+% Jon Renslo, Emily Bohl, Frankie Willcox, Natasha Berk, Kendall Fagan
+% 4/15/16 - Created Jon Renslo
+
+close all; clear; clc;
+
+% Constants
+G_TO_KG = 10^-3;
+KPA_TO_PA = 10^3;
+KJ_TO_J = 10^3;
+C_TO_K = 273.15;
+
+N_TO_O = 79/21;         % Engineering Air Molar Mass Ratio of Nitrogen to Oxygen
+AIR_TO_H = 4.76;        % Ratio between H combusted and air
+
+% Molar Masses
+MM_c = 12;
+MM_h = 1;
+MM_o = 16;
+MM_n = 14;
+MM_h2o = 2*MM_h + MM_o;
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+% Part 1: Efficiency of PEM Fuel Cells Found 3 Ways
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+% ASSUME: isothermal, isobaric i.e. reversible
+% USE: First- Law Effiency, eta = (-m_reactants*dg_rxn)/(mfuel*HV) where HV = LHV or HHV
+% SOURCE: LEC 8, SLIDE 13
+
+npts = 100;
+T = linspace(25+C_TO_K,1000+C_TO_K,npts);
+lambda = 2;                         % Equivalence Ratio(ASSUME: 100% excess air)
+HHV_h2 = 141800;                    % kj/kg,  Higher Heating Value   
+LHV_h2 = 120000;                    % kj/kg,  Lower Heating Value           
+Patm = 101.3*KPA_TO_PA;             % Pa,     Preact = Pprod = Patm
+
+mol_h2 = 1;                         % (ASSUME: 1 mol H2REPLACE_WITH_DASH_DASH>4.76/2 mol air = 139 g)
+mass_h2 = mol_h2 * 2*MM_h * G_TO_KG; 
+mol_air = AIR_TO_H * lambda / 2;
+mol_o2_rxn = mol_air / AIR_TO_H;    
+mol_n2 = mol_air * N_TO_O / AIR_TO_H;
+
+mol_h2o = mol_h2;
+mol_o2_prod = 0.5*(lambda - mol_h2) * mol_o2_rxn;
+
+% Check Mass Balance
+% MM_air = 28.85;
+% mass_react = mass_h2 + mol_air*MM_air*G_TO_KG
+% mass_prod = (mol_o2_prod*2*MM_o*G_TO_KG) + (mol_n2*2*MM_n*G_TO_KG + ...
+% ...mol_h2o*MM_h2o*G_TO_KG);
+
+% Calculate Change in Gibbs Free Energy 
+gprod_LHV = gEng(T,Patm,'h2ovap',mol_h2o) + gEng(T,Patm,'o2',mol_o2_prod) + gEng(T,Patm,'n2',mol_n2); % J, Gibbs Free Energy 
+gprod_HHV = gEng(T,Patm,'h2o',mol_h2o) + gEng(T,Patm,'o2',mol_o2_prod) + gEng(T,Patm,'n2',mol_n2);    
+greact = gEng(T,Patm,'h2',mol_h2) + gEng(T,Patm,'o2',mol_o2_rxn) + gEng(T,Patm,'n2',mol_n2);
+
+% Account for Gas/Liquid Mixture
+% SOURCE: LEC 8 Slide 24, LEC 9, Slide 29
+% APPROACH: (1) Assume beta=1, let Pv=Psat (2) Solve for Ptotal
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH If Pv < Psat, all vapor. If Pv > Psat, must be some liquid.
+beta = 1;                                   % ASSUME: all vapor
+Ptotal = Patm;
+Psat = PsatW(T);
+Pv = Ptotal*(beta./(beta + 0.5.*(gamma(T)-1) +0.5.*gamma(T).*N_TO_O ));
+
+for i = 1:length(T)
+    eta_carnot(i) = carnotEff(T(i),T(1));      % ASSUME: Tcold = 25 degrees C
+  
+    if Pv(i) < Psat(i)
+        % All H2O is vapor (beta = 1)
+        beta = 1;
+        Pv(i) = Ptotal*( beta / ( beta + 0.5*((mol_h2o-beta)-1) +0.5*(mol_h2o-beta)*N_TO_O ) );
+    else
+        % Some H2O is vapor, some liquid (beta not = 1)
+        % LET: Pv = Psat, solve for beta
+        Pv(i) = PsatW(i);
+        gamma(i) = mol_h2o - beta(i);
+        syms b
+        solve(Pv(i)/Ptotal == b/(b + 0.5*((mol_h2o-b)-1) +0.5*(mol_h2o-b)*N_TO_O ) ,b);
+    end
+    gprod_LHV_mix = beta(i) * gEng(T,Patm,'h2ovap',mol_h2o) + gamma(i) * gEng(T,Patm,'h2o',mol_h2o) + gEng(T,Patm,'o2',mol_o2_prod) + gEng(T,Patm,'n2',mol_n2);
+    delG_mix(i) = gprod_LHV_mix(i) - greact(i);    % TODO: DOUBLE CHECK THIS use LHV because no way to recover evaporated air?
+    eta_mix(i) = -delG_mix(i)/ (LHV_h2 * mass_h2 * KJ_TO_J);
+end
+
+delG_HHV = gprod_HHV - greact;
+delG_LHV = gprod_LHV - greact;
+eta_HHV = -delG_HHV / (HHV_h2 * mass_h2 * KJ_TO_J);
+eta_LHV = -delG_LHV / (LHV_h2 * mass_h2 * KJ_TO_J);
+
+figure(1);
+plot(T,eta_HHV,'bREPLACE_WITH_DASH_DASH', T,eta_LHV,'m', T,eta_mix,'g', T,eta_carnot,'c');
+legend('\eta_{HHV}','\eta_{LHV}','\eta_{Mixed Liquid and Gas}','\eta_{Carnot}');
+xlabel('Temperature [K]');
+ylabel('Maximum 1st Law Efficiency');
+plotfixer();
+
+
+% Part 2
+
+% Plot eta_LHV vs lambda (1:10), (p = 1atm)
+%      eta_LHV vs pressure (1:40atm), (lambda = 2)
+%       each at 80 220 650 800C
+##### SOURCE END #####
+--></body></html>
