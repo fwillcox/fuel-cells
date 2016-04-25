@@ -78,20 +78,17 @@ greact = gEng(T,Patm,'h2',mol_h2) + gEng(T,Patm,'o2',mol_o2_rxn) + gEng(T,Patm,'
 beta = 1;                                   % ASSUME: all vapor
 Ptotal = Patm;
 Psat = PsatW(T);
-%Pv_test = Ptotal*(beta./(beta + 0.5.*(gamma(T)-1) +0.5.*gamma(T).*N_TO_O ));
-
-gamma=zeros(length(T));
-beta=zeros(length(T));
-iterations=0;
+[~,~,gamma] = sp_heats(T);
+iterations =0;
 for i = 1:length(T)
     eta_carnot(i) = carnotEff(T(i),T(1));      % ASSUME: Tcold = 25 degrees C
     beta =1;
-    Pv_test(i) = Ptotal*( beta / ( beta + 0.5*((mol_h2o-beta)-1) +0.5*(mol_h2o-beta)*N_TO_O ) );
+    Pv_test(i) = Ptotal*( beta / ( beta + 0.5*(gamma(i)-1) +0.5*gamma(i)*N_TO_O ) );
     
     if Pv_test(i) < Psat(i)
         % All H2O is vapor (beta = 1)
         beta(i) = 1;
-        
+        Pv(i) = Pv_test(i);
     else
         % Some H2O is vapor, some liquid (beta not = 1)
         % LET: Pv = Psat, solve for beta
