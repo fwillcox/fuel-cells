@@ -30,20 +30,35 @@ MM_h2o = 2*MM_h + MM_o;
 % SOURCE: LEC 8, SLIDE 13
 
 npts = 100;
-T = linspace(25+C_TO_K,1000+C_TO_K,npts);
-lambda = 2;                         % Equivalence Ratio(ASSUME: 100% excess air)
 HHV_h2 = 141800;                    % kj/kg,  Higher Heating Value   
-LHV_h2 = 120000;                    % kj/kg,  Lower Heating Value           
-Patm = 101.3*KPA_TO_PA;             % Pa,     Preact = Pprod = Patm
+LHV_h2 = 120000;                    % kj/kg,  Lower Heating Value  
+
+% ------------------------------------------
+% UNCOMMENT FOR PART 1:
+T = linspace(25+C_TO_K,1000+C_TO_K,npts);
+lambda = 2;                         % Equivalence Ratio(ASSUME: 100% excess air)        
+Patm = 101.3*KPA_TO_PA;             % Pa,     Preact = Pprod = Patm 
+
+% % UNCOMMENT FOR PART 2a (varrying lambda)
+% T_C = [80 220 650 800];
+% T = T_C + C_TO_K;
+% lambda = linspace(1,10,npts);      % (Comment back in for Part 2)         
+% Patm = 101.3*KPA_TO_PA;             % Pa,     Preact = Pprod = Patm 
+
+% % UNCOMMENT FOR PART 2b (varrying Patm)
+% T_C = [80 220 650 800];
+% T = T_C + C_TO_K;
+% lambda = 2;                         % Equivalence Ratio(ASSUME: 100% excess air)     
+% Patm = linspace(101.3*KPA_TO_PA,4053*KPA_TO_PA,npts); % Pa, (Comment back in for Part 2)
+% ------------------------------------------
 
 mol_h2 = 1;                         % (ASSUME: 1 mol H2-->4.76/2 mol air = 139 g)
 mass_h2 = mol_h2 * 2*MM_h * G_TO_KG; 
-mol_air = AIR_TO_H * lambda / 2;
+mol_air = AIR_TO_H .* lambda ./ 2;
 mol_o2_rxn = mol_air / AIR_TO_H;    
 mol_n2 = mol_air * N_TO_O / AIR_TO_H;
-
 mol_h2o = mol_h2;
-mol_o2_prod = 0.5*(lambda - mol_h2) * mol_o2_rxn;
+mol_o2_prod = 0.5.*(lambda - mol_h2) .* mol_o2_rxn;
 
 % Check Mass Balance
 % MM_air = 28.85;
@@ -63,18 +78,20 @@ greact = gEng(T,Patm,'h2',mol_h2) + gEng(T,Patm,'o2',mol_o2_rxn) + gEng(T,Patm,'
 beta = 1;                                   % ASSUME: all vapor
 Ptotal = Patm;
 Psat = PsatW(T);
-Pv = Ptotal*(beta./(beta + 0.5.*(gamma(T)-1) +0.5.*gamma(T).*N_TO_O ));
+%Pv_test = Ptotal*(beta./(beta + 0.5.*(gamma(T)-1) +0.5.*gamma(T).*N_TO_O ));
 
 gamma=zeros(length(T));
 beta=zeros(length(T));
 iterations=0;
 for i = 1:length(T)
     eta_carnot(i) = carnotEff(T(i),T(1));      % ASSUME: Tcold = 25 degrees C
-  
-    if Pv(i) < Psat(i)
+    beta =1;
+    Pv_test(i) = Ptotal*( beta / ( beta + 0.5*((mol_h2o-beta)-1) +0.5*(mol_h2o-beta)*N_TO_O ) );
+    
+    if Pv_test(i) < Psat(i)
         % All H2O is vapor (beta = 1)
         beta(i) = 1;
-        Pv(i) = Ptotal*( beta(i) / ( beta(i) + 0.5*((mol_h2o-beta(i))-1) +0.5*(mol_h2o-beta(i))*N_TO_O ) );
+        
     else
         % Some H2O is vapor, some liquid (beta not = 1)
         % LET: Pv = Psat, solve for beta
@@ -83,7 +100,11 @@ for i = 1:length(T)
         beta(i) = solve(Pv(i)/Ptotal == b/(b + 0.5*((mol_h2o-b)-1) +0.5*(mol_h2o-b)*N_TO_O ) ,b);
         gamma(i) = mol_h2o - beta(i);
     end
-    gprod_LHV_mix(i) = beta(i)*gEng(T(i),Patm,'h2ovap',mol_h2o) + gamma(i)*gEng(T(i),Patm,'h2o',mol_h2o) + gEng(T(i),Patm,'o2',mol_o2_prod) + gEng(T(i),Patm,'n2',mol_n2);
+    % DOUBLE CHECK THE LINE BELOW!
+    mol_total = mol_h2o + mol_n2 + mol_o2_prod;  % total mols of products
+    y_vap = beta(i)/mol_total;
+    y_liq = gamma(i)/mol_total;
+    gprod_LHV_mix(i) = y_vap*gEng(T(i),Patm,'h2ovap',beta(i)*mol_h2o) + y_liq*gEng(T(i),Patm,'h2o',gamma(i)*mol_h2o) + gEng(T(i),Patm,'o2',mol_o2_prod) + gEng(T(i),Patm,'n2',mol_n2);
     delG_mix(i) = gprod_LHV_mix(i) - greact(i);    % TODO: DOUBLE CHECK THIS use LHV because no way to recover evaporated air?
     eta_mix(i) = -delG_mix(i)/ (LHV_h2 * mass_h2 * KJ_TO_J);
     iterations = iterations +1
@@ -101,6 +122,8 @@ xlabel('Temperature [K]');
 ylabel('Maximum 1st Law Efficiency');
 plotfixer();
 
+figure(2)
+plot(T,Pv);
 
 % Part 2
 
