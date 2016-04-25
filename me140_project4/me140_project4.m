@@ -52,60 +52,52 @@ mol_o2_prod = 0.5*(lambda - mol_h2) * mol_o2_rxn;
 % ...mol_h2o*MM_h2o*G_TO_KG);
 
 % Calculate Change in Gibbs Free Energy 
-<<<<<<< HEAD
 gprod_LHV = gEng(T,Patm,'h2ovap',mol_h2o) + gEng(T,Patm,'o2',mol_o2_prod) + gEng(T,Patm,'n2',mol_n2); % J, Gibbs Free Energy 
 gprod_HHV = gEng(T,Patm,'h2o',mol_h2o) + gEng(T,Patm,'o2',mol_o2_prod) + gEng(T,Patm,'n2',mol_n2);    
 greact = gEng(T,Patm,'h2',mol_h2) + gEng(T,Patm,'o2',mol_o2_rxn) + gEng(T,Patm,'n2',mol_n2);
-=======
-gprod_LHV = gEng(T,P,'h2ovap',mol_h2o) + gEng(T,P,'o2',mol_o2_prod) + gEng(T,P,'n2',mol_n2); % J, Gibbs Free Energy 
-gprod_HHV = gEng(T,P,'h2o',mol_h2o) + gEng(T,P,'o2',mol_o2_prod) + gEng(T,P,'n2',mol_n2);    
-greact = gEng(T,P,'h2',mol_h2) + gEng(T,P,'o2',mol_o2_rxn) + gEng(T,P,'n2',mol_n2);
->>>>>>> master
 
 % Account for Gas/Liquid Mixture
 % SOURCE: LEC 8 Slide 24, LEC 9, Slide 29
 % APPROACH: (1) Assume beta=1, let Pv=Psat (2) Solve for Ptotal
 % -------- If Pv < Psat, all vapor. If Pv > Psat, must be some liquid.
-
-beta = 1;               % ASSUME: all vapor
+beta = 1;                                   % ASSUME: all vapor
 Ptotal = Patm;
 Psat = PsatW(T);
 Pv = Ptotal*(beta./(beta + 0.5.*(gamma(T)-1) +0.5.*gamma(T).*N_TO_O ));
 
-for i = 1:length(Psat)
+gamma=zeros(length(T));
+beta=zeros(length(T));
+iterations=0;
+for i = 1:length(T)
+    eta_carnot(i) = carnotEff(T(i),T(1));      % ASSUME: Tcold = 25 degrees C
+  
     if Pv(i) < Psat(i)
         % All H2O is vapor (beta = 1)
-        beta = 1;
-        Pv(i) = Ptotal*( beta / ( beta + 0.5*((mol_h2o-beta)-1) +0.5*(mol_h2o-beta)*N_TO_O ) );
+        beta(i) = 1;
+        Pv(i) = Ptotal*( beta(i) / ( beta(i) + 0.5*((mol_h2o-beta(i))-1) +0.5*(mol_h2o-beta(i))*N_TO_O ) );
     else
         % Some H2O is vapor, some liquid (beta not = 1)
         % LET: Pv = Psat, solve for beta
         Pv(i) = PsatW(i);
-        gamma = mol_h2o - beta;
         syms b
-        solve(Pv(i)/Ptotal == b/(b + 0.5*((mol_h2o-b)-1) +0.5*(mol_h2o-b)*N_TO_O ) ,b);
-        
+        beta(i) = solve(Pv(i)/Ptotal == b/(b + 0.5*((mol_h2o-b)-1) +0.5*(mol_h2o-b)*N_TO_O ) ,b);
+        gamma(i) = mol_h2o - beta(i);
     end
+    gprod_LHV_mix(i) = beta(i)*gEng(T(i),Patm,'h2ovap',mol_h2o) + gamma(i)*gEng(T(i),Patm,'h2o',mol_h2o) + gEng(T(i),Patm,'o2',mol_o2_prod) + gEng(T(i),Patm,'n2',mol_n2);
+    delG_mix(i) = gprod_LHV_mix(i) - greact(i);    % TODO: DOUBLE CHECK THIS use LHV because no way to recover evaporated air?
+    eta_mix(i) = -delG_mix(i)/ (LHV_h2 * mass_h2 * KJ_TO_J);
+    iterations = iterations +1
 end
-%comment
 
 delG_HHV = gprod_HHV - greact;
 delG_LHV = gprod_LHV - greact;
-% delG_liquidGasMix = ???
 eta_HHV = -delG_HHV / (HHV_h2 * mass_h2 * KJ_TO_J);
 eta_LHV = -delG_LHV / (LHV_h2 * mass_h2 * KJ_TO_J);
 
-
-
-
-% Y_h2o = mol_h2o/mol_total;
-% eta_liquidGasMix = ??? todo find g actual based on liquid water mixture
-% eta_carnot = 1- Tlow/Thigh;
-
-figure();
-plot(T,eta_HHV,T,eta_LHV);
-legend('\eta_{HHV}','\eta_{LHV}');
-xlabel('Temperature K');
+figure(1);
+plot(T,eta_HHV,'b--', T,eta_LHV,'m--', T,eta_mix,'go', T,eta_carnot,'c');
+legend('\eta_{HHV}','\eta_{LHV}','\eta_{Mixed Liquid and Gas}','\eta_{Carnot}');
+xlabel('Temperature [K]');
 ylabel('Maximum 1st Law Efficiency');
 plotfixer();
 
